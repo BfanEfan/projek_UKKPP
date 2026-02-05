@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Document</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-cover relative " style="background-image: url(/css/bc.jpg); ">
+  <header>
+    <nav class="bg-black text-white px-6 py-4 flex items-center justify-between relative">
+      <!-- Logo kiri -->
+      <div class="flex items-center space-x-3">
+        <img src="/css/bpmlogo.jpeg" alt="Logo" class="h-10 w-10 rounded-3xl" />
+        <img src="/css/SMK-Bisa-Hebat-V3.png" alt="Logo" class="h-10 w-10 bg-white">
+        <span class="font-bold text-xl">Dosa Tracker</span>
+      </div>
+
+      <!-- Menu tengah -->
+<div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-10 text-white">
+  <a href="/dashboard" class="hover:text-green-400">
+    Home
+  </a>
+  <a href="/dasis" class="hover:text-yellow-400">
+    Data siswa
+  </a>
+  <a href="/update-siswa" class="hover:text-red-500">
+    Update data siswa
+  </a>
+</div>
+
+      <!-- Tombol logout kanan -->
+      <a href="/logout" class="bg-red-600 hover:bg-green-500 text-white px-3 py-1 rounded">
+        Logout
+      </a>
+    </nav>
+  </header>
+
+  <!-- Konten utama, dibuat center -->
+  <main class="flex-grow flex flex-col justify-center items-center px-4 text-center text-5xl">
+  <!-- Glass container -->
+  <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Glass card -->
+      <div class="backdrop-blur-xl bg-white/30 dark:bg-gray-800/40 rounded-2xl shadow-2xl border border-white/40 dark:border-gray-700/50 p-8 md:p-12">
+    <div class="text-center">
+    <h1 class="font-bold mb-2 text-white">
+      Selamat datang di Dosa Tracker
+    </h1>
+    <p class="text-base">Tujuan website ini dibuat untuk menghitung poin siswa/siswi yang melampaui batas</p>
+    </div>
+  </main>
+</body>
+</html>
