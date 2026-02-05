@@ -19,6 +19,9 @@ app.set('view engine', 'ejs');
 // Gunakan auth routes
 app.use('/', authRoutes); // semua route di auth.js aktif
 
+app.get('/bayhaqiSSS',(req, res)=> {
+  res.send('Ini adalah halaman rahasia untuk bayhaqiSSS');
+})
 // Jalankan server
 app.listen(3000, () => {
   console.log('Server jalan di http://localhost:3000');
