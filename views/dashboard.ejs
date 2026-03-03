@@ -1,54 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col min-h-screen bg-cover relative " style="background-image: url(/css/bc.jpg); ">
-  <header>
-    <nav class="bg-black text-white px-6 py-4 flex items-center justify-between relative">
-      <!-- Logo kiri -->
-      <div class="flex items-center space-x-3">
-        <img src="/css/bpmlogo.jpeg" alt="Logo" class="h-10 w-10 rounded-3xl" />
-        <img src="/css/SMK-Bisa-Hebat-V3.png" alt="Logo" class="h-10 w-10 bg-white">
-        <span class="font-bold text-xl">Dosa Tracker</span>
-      </div>
-
-      <!-- Menu tengah -->
-<div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-10 text-white">
-  <a href="/dashboard" class="hover:text-green-400">
-    Home
-  </a>
-  <a href="/dasis" class="hover:text-yellow-400">
-    Data siswa
-  </a>
-  <a href="/update-siswa" class="hover:text-red-500">
-    Update data siswa
-  </a>
-</div>
-
-      <!-- Tombol logout kanan -->
-      <a href="/logout" class="bg-red-600 hover:bg-green-500 text-white px-3 py-1 rounded">
-        Logout
-      </a>
-    </nav>
-  </header>
-  <!-- test -->
-  <!-- Konten utama, dibuat center -->
-  <main class="flex-grow flex flex-col justify-center items-center px-4 text-center text-5xl">
-  <!-- Glass container -->
-  <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
-      <!-- Glass card -->
-      <div class="backdrop-blur-xl bg-white/30 dark:bg-gray-800/40 rounded-2xl shadow-2xl border border-white/40 dark:border-gray-700/50 p-8 md:p-12">
-    <div class="text-center">
-    <h1 class="font-bold mb-2 text-white">
-      Selamat datang di Dosa Tracker
-    </h1>
-    <p class="text-base">Tujuan website ini dibuat untuk menghitung poin siswa/siswi yang melampaui batas</p>
+<body class="bg-gray-200">
+ 
+<!-- HEADER -->
+<div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+      <img src="/css/bpmlogo.jpeg" alt="icon" class="w-full h-full object-cover">
     </div>
-  </main>
+    <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
+  </div>
+  <button class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600">
+    Logout
+  </button>
+</div>
+ 
+<div class="flex">
+ 
+  <!-- SIDEBAR -->
+  <div class="w-64 bg-gray-100 min-h-screen p-6">
+    <a href="/dashboard"
+      class="flex items-center gap-2 mb-6 font-bold text-[#332c2d]">
+      <img src="/css/profil.png" alt="icon" class="w-7 h-7">
+      E-DISIPLIN
+    </a>
+
+    <ul class="space-y-4">
+      <li>
+        <a href="/dashboard"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/rumah.png" alt="icon" class="w-5 h-5">
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/dasis"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/edu.png" alt="icon" class="w-5 h-5">
+          Data Siswa
+        </a>
+      </li>
+      <li>
+        <a href="/pahalapoin"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/Update.png" alt="icon" class="w-5 h-5">
+          Update pahala
+        </a>
+      </li>
+    </ul>
+  </div>
+ 
+  <!-- CONTENT -->
+  <div class="flex-1 p-8">
+ 
+    <h2 class="text-2xl font-bold mb-2 text-[#332c2d]">Overview Sekolah</h2>
+    <p class="mb-6 text-[#332c2d]">
+      Kelola kedisiplinan siswa dengan mudah
+    </p>
+ 
+    <!-- CARD -->
+    <div class="grid grid-cols-3 gap-6 mb-8">
+      
+    <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+        <img src="/css/siswas.png" alt="icon" class="w-12 h-12 object-contain">
+        <div>
+          <p class="text-gray-500">Total siswa melanggar</p>
+          <h3 class="text-3xl font-bold mt-2"><%= totalSiswa %></h3>
+        </div>
+    </div>
+
+    
+    <div class="bg-black p-6 rounded-xl shadow flex items-center gap-4">
+        <img src="/css/warning_icon.png" alt="icon" class="w-12 h-12 object-contain">
+        <div>
+          <p class="text-gray-500">Total pelanggaran di Sekolah</p>
+          <h3 class="text-3xl font-bold mt-2 text-yellow-500"><%= topel %></h3>
+        </div>
+    </div>
+
+ 
+    <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+        <img src="/css/api.png" alt="icon" class="w-12 h-12 object-contain">
+        <div>
+          <p class="text-gray-500">Siswa zona merah</p>
+          <h3 class="text-3xl font-bold mt-2 text-red-500">-</h3>
+        </div>
+    </div>
+
+ 
+    </div>
+ 
+    <!-- WELCOME BOX -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="text-xl font-bold mb-2">
+        Selamat Datang 👋
+      </h3>
+      <p class="text-gray-500 font-bold">
+        Website ini digunakan untuk memantau dan mencatat poin pelanggaran siswa.
+        Silakan pilih menu di sebelah kiri untuk mulai mengelola data.
+      </p>
+    </div>
+ 
+  </div>
+ 
+</div>
+ 
 </body>
 </html>

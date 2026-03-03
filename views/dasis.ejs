@@ -7,36 +7,83 @@
   </head>
 
   <body class="bg-gray-100 min-h-screen">
-    <header class="bg-black text-white px-6 py-4 flex justify-between">
-      <h1 class="font-bold">Data Siswa</h1>
-      <a href="/dashboard" class="hover:underline">Dashboard</a>
-    </header>
+    <!-- HEADER -->
+<div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+      <img src="/css/bpmlogo.jpeg" alt="icon" class="w-full h-full object-cover">
+    </div>
+    <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
+  </div>
+  <button class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600">
+    Logout
+  </button>
+</div>
+ 
+<div class="flex">
+ 
+  <!-- SIDEBAR -->
+  <div class="w-64 bg-gray-100 min-h-screen p-6">
+    <a href="/dashboard"
+      class="flex items-center gap-2 mb-6 font-bold text-[#332c2d]">
+      <img src="/css/profil.png" alt="icon" class="w-7 h-7">
+      E-DISIPLIN
+    </a>
 
-    <main class="p-6">
-      <form action="/dasis" method="GET" class="mb-4 flex gap-2 justify-end">
-        <input
-          type="text"
-          name="keyword"
-          value="<%= keyword %>"
-          placeholder="Cari nama / NIS siswa..."
-          class="px-4 py-2 border rounded w-64 focus:outline-none focus:ring"
-        >
-        <button
-          type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Cari
-        </button>
-      </form>
+    <ul class="space-y-4">
+      <li>
+        <a href="/dashboard"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/rumah.png" alt="icon" class="w-5 h-5">
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/dasis"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/edu.png" alt="icon" class="w-5 h-5">
+          Data Siswa
+        </a>
+      </li>
+      <li>
+        <a href="/pahalapoin"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/Update.png" alt="icon" class="w-5 h-5">
+          Update pahala
+        </a>
+      </li>
+    </ul>
+  </div>
+ 
 
+  <main class="flex-1 flex justify-center p-6">
+  <div class="w-full max-w-5xl">
+
+    <form action="/dasis" method="GET" class="mb-4 flex gap-2 justify-end">
+      <input
+        type="text"
+        name="keyword"
+        value="<%= keyword %>"
+        placeholder="Cari nama / NIS siswa..."
+        class="px-4 py-2 border rounded w-64 focus:outline-none focus:ring"
+      >
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      >
+        Cari
+      </button>
+    </form>
+
+    <table class="w-full bg-white rounded shadow">
       <table class="w-full bg-white rounded shadow">
         <thead class="bg-gray-200">
           <tr>
-            <th class="p-2 text-left">NIPD</th>
-            <th class="p-2 text-left">Siswa</th>
-            <th class="p-2 text-left">Kelas</th>
-            <th class="p-2 text-left">Jurusan</th>
-            <th class="p-2 text-left">Total-poin</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">NIPD</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">NAMA SISWA</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">KELAS</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">JURUSAN</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">POINT</th>
           </tr>
         </thead>
 
@@ -47,11 +94,21 @@
               <td class="p-2"><%= s.nama_siswa %></td>
               <td class="p-2"><%= s.kelas %></td>
               <td class="p-2"><%= s.jurusan %></td>
-              <td class="p-2"><%= s.total_poin %></td>
+              <td class="p-2 flex items-center gap-2">
+              <span><%= s.total_poin %></span>
+              <form action="/dasis/delete/<%= s.nipd %>" method="POST" onsubmit="return confirm('Yakin ingin menghapus siswa ini?')">
+                <button type="submit" class="text-red-600 hover:text-red-800">
+                  🗑
+                </button>
+              </form>
+            </td>
             </tr>
           <% }) %>
         </tbody>
       </table>
-    </main>
+    </table>
+  </div>
+</main>
+      </form>
   </body>
 </html>
