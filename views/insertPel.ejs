@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Data Pelanggaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-5">Tambah Data Pelanggaran</h2>
+<form action="/insertPel" method="POST" class="space-y-4">
+
+    <div>
+        <label class="block font-semibold mb-1">Kode Pelanggaran</label>
+        <input type="text" name="kode_pelanggaran" id="kode_pelanggaran" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <div>
+        <label class="block font-semibold mb-1">Jenis Pelanggaran</label>
+        <input type="text" name="jenis_pelanggaran" id="jenis_pelanggaran" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <div>
+        <label class="block font-semibold mb-1">Deskripsi Pelanggaran</label>
+        <input type="text" name="deskripsi_pelanggaran" id="deskripsi_pelanggaran" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <div>
+        <label class="block font-semibold mb-1">Sanksi</label>
+        <input type="text" name="sanksi" id="sanksi" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    
+    <div>
+        <label class="block font-semibold mb-1">Poin</label>
+        <input type="text" name="poin" id="poin" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit"
+            class="bg-blue-500 hover:bg-blue-600 text-white rounded-md w-[80px] h-[40px]">
+            Simpan
+        </button>
+
+        <a href="/dashboard"
+            class="w-full text-center bg-gray-400 text-white py-2 rounded-md hover:bg-gray-500 transition">
+            Kembali
+        </a>
+    </div>
+
+</form>
+</div>
+</body>
+</html>

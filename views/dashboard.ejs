@@ -6,6 +6,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-200">
+  <style>
+    body{
+      overflow: hidden;
+    }
+  </style>
  
 <!-- HEADER -->
 <div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
@@ -15,20 +20,19 @@
     </div>
     <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
   </div>
-  <button class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600">
-    Logout
-  </button>
+  <button 
+  onclick="location.href='/logout'" 
+  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white"
+>
+  Logout
+</button>
+</script>
 </div>
  
 <div class="flex">
  
   <!-- SIDEBAR -->
   <div class="w-64 bg-gray-100 min-h-screen p-6">
-    <a href="/dashboard"
-      class="flex items-center gap-2 mb-6 font-bold text-[#332c2d]">
-      <img src="/css/profil.png" alt="icon" class="w-7 h-7">
-      E-DISIPLIN
-    </a>
 
     <ul class="space-y-4">
       <li>
@@ -50,6 +54,13 @@
           class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
           <img src="/css/Update.png" alt="icon" class="w-5 h-5">
           Update pahala
+        </a>
+      </li>
+      <li>
+        <a href="/detailpel"
+          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+          <img src="/css/detail.png" alt="icon" class="w-5 h-5">
+          Detail pelanggaran
         </a>
       </li>
     </ul>
@@ -85,10 +96,11 @@
 
  
     <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
-        <img src="/css/api.png" alt="icon" class="w-12 h-12 object-contain">
+        <img src="/css/barup.png" alt="icon" class="w-12 h-12 object-contain">
         <div>
-          <p class="text-gray-500">Siswa zona merah</p>
-          <h3 class="text-3xl font-bold mt-2 text-red-500">-</h3>
+          <p class="text-gray-500">Data baru masuk</p>
+          <h3 class="text-3xl font-bold mt-2 text-blue-500"><%= tori %>
+          </h3>
         </div>
     </div>
 
