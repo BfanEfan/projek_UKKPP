@@ -16,12 +16,33 @@
     </div>
     <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
   </div>
+  <!--log out-->
   <button 
-  onclick="location.href='/logout'" 
-  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white"
+  onclick="handleLogout()" 
+  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white transition-colors"
 >
   Logout
 </button>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function handleLogout() {
+  Swal.fire({
+    title: 'Konfirmasi Logout',
+    text: "Apakah benar Anda ingin keluar?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444', // Merah Tailwind
+    cancelButtonColor: '#374151', // Abu-abu gelap
+    confirmButtonText: 'Iya, Keluar',
+    cancelButtonText: 'Batal',
+    reverseButtons: true // Memposisikan tombol 'Iya' di kanan agar lebih user-friendly
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/logout';
+    }
+  });
+}
+</script>
 </div>
 
 <div class="flex">
@@ -45,13 +66,6 @@
         </a>
       </li>
       <li>
-        <a href="/pahalapoin"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/Update.png" alt="icon" class="w-5 h-5">
-          Update pahala
-        </a>
-      </li>
-      <li>
         <a href="/detailpel"
           class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
           <img src="/css/detail.png" alt="icon" class="w-5 h-5">
@@ -69,10 +83,6 @@
     + Tambah Data
   </a>
 
-  <form class="flex gap-2">
-    <input class="border px-4 py-2 rounded" placeholder="Cari kategori...">
-    <button class="bg-blue-600 text-white px-4 py-2 rounded">Cari</button>
-  </form>
 </div>
 
 <div class="overflow-x-auto mt-6">

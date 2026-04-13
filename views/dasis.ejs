@@ -2,21 +2,58 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Data Siswa</title>
+  <title>Data Siswa - SMK BPM</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* CSS UNTUK MODE CETAK (PRINT) */
     @media print {
-      body { background: white; font-size: 12px; }
-      .bg-red-900, .w-64, form, button, a, .text-red-600 { display: none !important; }
-      main { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-      .max-w-5xl { max-width: 100% !important; }
-      table { width: 100%; border-collapse: collapse; font-size: 12px; }
-      th, td { border: 1px solid black; padding: 6px; text-align: left; }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        background: white;
+        font-size: 12px;
+      }
+
+      /* Sembunyikan elemen UI yang tidak perlu di kertas */
+      .bg-red-900, .w-64, form, button, a, .pagination, nav {
+        display: none !important;
+      }
+
+      /* Tampilkan Judul Print */
+      #judulPrint {
+        display: block !important;
+        visibility: visible !important;
+        margin-bottom: 20px !important;
+      }
+
+      main {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      .max-w-5xl {
+        max-width: 100% !important;
+      }
+
+      table {
+        width: 100% !important;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        border: 1px solid black !important;
+        padding: 6px;
+        text-align: left;
+      }
     }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-  <!-- HEADER -->
+
   <div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
@@ -24,34 +61,63 @@
       </div>
       <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
     </div>
-    <button onclick="location.href='/logout'" class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white">Logout</button>
+    <!--log out-->
+  <button 
+  onclick="handleLogout()" 
+  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white transition-colors"
+>
+  Logout
+</button>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function handleLogout() {
+  Swal.fire({
+    title: 'Konfirmasi Logout',
+    text: "Apakah benar Anda ingin keluar?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444', // Merah Tailwind
+    cancelButtonColor: '#374151', // Abu-abu gelap
+    confirmButtonText: 'Iya, Keluar',
+    cancelButtonText: 'Batal',
+    reverseButtons: true // Memposisikan tombol 'Iya' di kanan agar lebih user-friendly
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/logout';
+    }
+  });
+}
+</script>
+</div>
   </div>
 
   <div class="flex">
-    <!-- SIDEBAR -->
     <div class="w-64 bg-gray-100 min-h-screen p-6">
       <ul class="space-y-4">
         <li><a href="/dashboard" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]"><img src="/css/rumah.png" class="w-5 h-5"> Dashboard</a></li>
         <li><a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]"><img src="/css/edu.png" class="w-5 h-5"> Data Siswa</a></li>
-        <li><a href="/pahalapoin" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]"><img src="/css/Update.png" class="w-5 h-5"> Update pahala</a></li>
         <li><a href="/detailpel" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]"><img src="/css/detail.png" class="w-5 h-5"> Detail pelanggaran</a></li>
       </ul>
     </div>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 flex justify-center p-6">
       <div class="w-full max-w-5xl">
-        <!-- Header + Form -->
+        
         <div class="mb-4 flex gap-2 justify-end items-center">
           <a href="/insertdata" class="bg-green-600 w-[50px] h-[50px] rounded-lg flex items-center justify-center text-white text-3xl hover:bg-green-700">+</a>
           <form action="/dasis" method="GET" class="flex gap-2">
             <input type="text" name="keyword" value="<%= keyword %>" placeholder="Cari nama / NIS siswa..." class="px-4 py-2 border rounded w-64 focus:outline-none focus:ring">
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Cari</button>
           </form>
-          <button onclick="window.print()" class="bg-yellow-500 hover:bg-gray-800 text-white px-4 py-2 rounded flex items-center gap-2">Print</button>
+          <button onclick="printAll()" class="bg-yellow-500 hover:bg-gray-800 text-white px-4 py-2 rounded flex items-center gap-2">Cetak</button>
         </div>
 
-        <!-- TABEL -->
+        <div id="judulPrint" class="hidden text-center">
+          <h1 class="text-2xl font-bold uppercase">Point Pelanggaran Siswa 2026</h1>
+          <p class="text-sm">SMK BINA PUTRA MANDIRI</p>
+          <hr class="border-t-2 border-black mt-2 mb-4">
+        </div>
+
         <div class="bg-white rounded shadow overflow-x-auto">
           <table class="w-full" id="tableBody">
             <thead class="bg-gray-200">
@@ -63,27 +129,53 @@
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">POINT</th>
               </tr>
             </thead>
-            <tbody>
-              <% siswa.forEach(s => { %>
-              <tr class="border-t">
-                <td class="p-2 px-6"><%= s.nipd %></td>
-                <td class="p-2 px-6"><%= s.nama_siswa %></td>
-                <td class="p-2 px-6"><%= s.kelas_siswa %></td>
-                <td class="p-2 px-6"><%= s.jurusan %></td>
-                <td class="p-2 px-6 flex items-center gap-2">
-                  <span><%= s.total_poin %></span>
-                  <form action="/dasis/delete/<%= s.nipd %>" method="POST" onsubmit="return confirm('Yakin ingin menghapus siswa ini?')" class="inline">
-                    <button type="submit" class="text-red-600 hover:text-red-800">🗑</button>
-                  </form>
-                </td>
-              </tr>
-              <% }) %>
-            </tbody>
+         <tbody>
+          <% siswa.forEach(s => { %>
+            <tr class="border-t <%= s.total_poin >= 100 ? 'bg-red-100 text-red-700 font-bold' : '' %>">
+              
+              <td class="p-2 px-6"><%= s.nipd %></td>
+              <td class="p-2 px-6"><%= s.nama_siswa %></td>
+              <td class="p-2 px-6"><%= s.kelas_siswa %></td>
+              <td class="p-2 px-6"><%= s.jurusan %></td>
+
+             <td class="p-2 px-6">
+  <div class="flex items-center gap-4">
+
+    <span class="font-semibold">
+      <%= s.total_poin %>
+    </span>
+
+    <form action="/pahalapoin/update/<%= s.nipd %>" method="POST" class="flex items-center gap-2">
+      <select name="id_pelanggaran" class="border rounded px-2 py-1 text-sm" <%= s.total_poin >= 100 ? 'disabled' : '' %>>
+        <% pelanggaran.forEach(p => { %>
+          <option value="<%= p.kode_pelanggaran %>">
+            <%= p.deskripsi_pelanggaran %> (<%= p.poin %>)
+          </option>
+        <% }) %>
+      </select>
+
+      <button type="submit" 
+        class="<%= s.total_poin >= 100 ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700' %> text-white px-3 py-1 rounded text-xs"
+        <%= s.total_poin >= 100 ? 'disabled' : '' %>>
+        Tambah
+      </button>
+    </form>
+
+    <form action="/dasis/delete/<%= s.nipd %>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data <%= s.nama_siswa %>?')">
+      <button type="submit" class="text-red-600 hover:text-red-800 text-lg transition-colors">
+        🗑
+      </button>
+    </form>
+
+  </div>
+</td>
+            </tr>
+          <% }) %>
+        </tbody>
           </table>
         </div>
 
-        <!-- PAGINATION -->
-        <div class="flex justify-between items-center mt-4 px-4 py-2">
+        <div class="pagination flex justify-between items-center mt-4 px-4 py-2">
           <button onclick="prevPage()" class="bg-gray-400 text-white px-4 py-2 rounded">Prev</button>
           <span id="pageInfo" class="font-bold"></span>
           <button onclick="nextPage()" class="bg-green-600 text-white px-4 py-2 rounded">Next</button>
@@ -93,25 +185,22 @@
     </main>
   </div>
 
-  <!-- SCRIPT PAGINATION -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const rowsPerPage = 10;
       let currentPage = 1;
 
-      const table = document.getElementById("tableBody");
-      const rows = table.getElementsByTagName("tr");
+      const tableBody = document.querySelector("#tableBody tbody");
+      const rows = tableBody.getElementsByTagName("tr");
       const totalRows = rows.length;
       const totalPages = Math.ceil(totalRows / rowsPerPage);
 
       function showPage(page) {
         currentPage = page;
         for (let i = 0; i < totalRows; i++) rows[i].style.display = "none";
-
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         for (let i = start; i < end && i < totalRows; i++) rows[i].style.display = "";
-
         document.getElementById("pageInfo").innerText = " Halaman " + page + " dari " + totalPages;
       }
 
@@ -120,7 +209,25 @@
 
       showPage(1);
     });
-  </script>
 
+    function printAll() {
+      const tableBody = document.querySelector("#tableBody tbody");
+      const rows = tableBody.getElementsByTagName("tr");
+      const judul = document.getElementById("judulPrint");
+      if (judul) judul.classList.remove('hidden');
+      const backup = [];
+      for (let i = 0; i < rows.length; i++) {
+        backup[i] = rows[i].style.display;
+        rows[i].style.display = ""; 
+      }
+      window.print();
+      setTimeout(() => {
+        if (judul) judul.classList.add('hidden');
+        for (let i = 0; i < rows.length; i++) {
+          rows[i].style.display = backup[i];
+        }
+      }, 500);
+    }
+  </script>
 </body>
 </html>

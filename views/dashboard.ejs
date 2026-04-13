@@ -20,12 +20,34 @@
     </div>
     <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
   </div>
+ <!--log out-->
   <button 
-  onclick="location.href='/logout'" 
-  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white"
+  onclick="handleLogout()" 
+  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white transition-colors"
 >
   Logout
 </button>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function handleLogout() {
+  Swal.fire({
+    title: 'Konfirmasi Logout',
+    text: "Apakah benar Anda ingin keluar?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444', // Merah Tailwind
+    cancelButtonColor: '#374151', // Abu-abu gelap
+    confirmButtonText: 'Iya, Keluar',
+    cancelButtonText: 'Batal',
+    reverseButtons: true // Memposisikan tombol 'Iya' di kanan agar lebih user-friendly
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/logout';
+    }
+  });
+}
+</script>
+</div>
 </script>
 </div>
  
@@ -47,13 +69,6 @@
           class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
           <img src="/css/edu.png" alt="icon" class="w-5 h-5">
           Data Siswa
-        </a>
-      </li>
-      <li>
-        <a href="/pahalapoin"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/Update.png" alt="icon" class="w-5 h-5">
-          Update pahala
         </a>
       </li>
       <li>
@@ -80,7 +95,7 @@
     <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
         <img src="/css/siswas.png" alt="icon" class="w-12 h-12 object-contain">
         <div>
-          <p class="text-gray-500">Total siswa melanggar</p>
+          <p class="text-gray-500">Jumlah siswa</p>
           <h3 class="text-3xl font-bold mt-2"><%= totalSiswa %></h3>
         </div>
     </div>
@@ -89,17 +104,17 @@
     <div class="bg-black p-6 rounded-xl shadow flex items-center gap-4">
         <img src="/css/warning_icon.png" alt="icon" class="w-12 h-12 object-contain">
         <div>
-          <p class="text-gray-500">Total pelanggaran di Sekolah</p>
+          <p class="text-gray-500">Jumlah pelanggar</p>
           <h3 class="text-3xl font-bold mt-2 text-yellow-500"><%= topel %></h3>
         </div>
     </div>
 
  
     <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
-        <img src="/css/barup.png" alt="icon" class="w-12 h-12 object-contain">
+        <img src="/css/api.png" alt="icon" class="w-12 h-12 object-contain">
         <div>
-          <p class="text-gray-500">Data baru masuk</p>
-          <h3 class="text-3xl font-bold mt-2 text-blue-500"><%= tori %>
+          <p class="text-black-500">Siswa daftar merah</p>
+          <h3 class="text-3xl font-bold mt-2 text-red-500"><%= tori %>
           </h3>
         </div>
     </div>

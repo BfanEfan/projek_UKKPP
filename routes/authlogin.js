@@ -1,23 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const database = require('../config/db');
+const bcrypt = require("bcrypt");
 
 // LOGIN
 router.get('/login', (req, res) => {
   res.render('index', { error: null });
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM admin WHERE username = ?';
-  database.query(sql, [username], (err, results) => {
-    if (err) throw err;
-    if (results.length === 0) return res.render('index', { error: 'Username tidak ditemukan' });
-    const user = results[0];
-    if (password !== user.password) return res.render('index', { error: 'Password salah' });
 
-    req.session.user = { id: user.id, username: user.username };
-    res.redirect('/dashboard');
+  database.query(sql, [username], async (err, results) => {
+    if (err) throw err;
+
+    if (results.length === 0) {
+      return res.render('index', { error: 'Username tidak ditemukan' });
+    }
+
+    const user = results[0];
+
+    try {
+      let valid = false;
+
+      // cek apakah password sudah bcrypt atau belum
+      const isHashed = user.password && user.password.startsWith('$2');
+
+      if (isHashed) {
+        // 🔐 password sudah hash
+        valid = await bcrypt.compare(password, user.password);
+      } else {
+        // 🔓 password masih plain text
+        valid = password === user.password;
+
+        // 🔄 upgrade otomatis ke bcrypt
+        if (valid) {
+          const hashed = await bcrypt.hash(password, 10);
+
+          database.query(
+            'UPDATE admin SET password = ? WHERE id = ?',
+            [hashed, user.id]
+          );
+        }
+      }
+
+      if (!valid) {
+        return res.render('index', { error: 'Password salah' });
+      }
+
+      req.session.user = {
+        id: user.id,
+        username: user.username
+      };
+
+      res.redirect('/dashboard');
+
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send('Error server');
+    }
   });
 });
 
@@ -32,17 +74,25 @@ router.get('/dashboard', (req, res) => {
     if (err) return res.status(500).send("Error server");
     const totalSiswa = result1[0].total;
 
-    database.query("SELECT COUNT(*) AS karma FROM pelanggaran", (err, result2) => {
-      if (err) return res.status(500).send("Error server");
-      const topel = result2[0].karma;
+    // query ke-2
+    database.query(
+      "SELECT COUNT(*) AS karma FROM siswa WHERE total_poin > 0",
+      (err, result2) => {
+        if (err) return res.status(500).send("Error server");
+        const topel = result2[0].karma;
 
-    database.query("SELECT COUNT(*) AS rilis FROM pelanggaran_to_siswa", (err, result3) => {
-      if (err) return res.status(500).send("Error server");
-      const tori = result3[0].rilis;
+        // query ke-3
+        database.query(
+          "SELECT COUNT(*) AS rilis FROM siswa WHERE total_poin = 100",
+          (err, result3) => {
+            if (err) return res.status(500).send("Error server");
+            const tori = result3[0].rilis;
 
-      res.render('dashboard', { totalSiswa, topel, tori});
-      });
-    });
+            res.render('dashboard', { totalSiswa, topel, tori });
+          }
+        );
+      }
+    );
   });
 });
 
@@ -57,9 +107,22 @@ router.get('/dasis', (req, res) => {
     params.push(`%${keyword}%`, `%${keyword}%`);
   }
 
-  database.query(sql, params, (err, results) => {
+  // ambil siswa
+  database.query(sql, params, (err, siswa) => {
     if (err) return res.status(500).send("Error server");
-    res.render('dasis', { siswa: results, keyword });
+
+    // ambil pelanggaran
+    database.query("SELECT * FROM pelanggaran", (err, pelanggaran) => {
+      if (err) return res.status(500).send("Error server");
+
+      console.log("DATA PELANGGARAN:", pelanggaran);
+
+      res.render('dasis', {
+        siswa: siswa,
+        pelanggaran: pelanggaran,
+        keyword: keyword
+      });
+    });
   });
 });
 
@@ -97,16 +160,25 @@ router.post('/dasis/delete/:nipd', (req, res) => {
 // bagian pahalapoin
 router.get('/pahalapoin', (req, res) => {
 
-  const sql = "SELECT * FROM siswa";
+  const sqlSiswa = "SELECT * FROM siswa";
+  const sqlPelanggaran = "SELECT * FROM pelanggaran";
 
-  database.query(sql, (err, results) => {
+  database.query(sqlSiswa, (err, siswa) => {
     if (err) {
       console.log(err);
       return res.send("Terjadi kesalahan");
     }
 
-    res.render('pahalapoin', {
-      siswa: results
+    database.query(sqlPelanggaran, (err, pelanggaran) => {
+      if (err) {
+        console.log(err);
+        return res.send("Terjadi kesalahan");
+      }
+
+      res.render('pahalapoin', {
+        siswa: siswa,
+        pelanggaran: pelanggaran
+      });
     });
 
   });
@@ -115,37 +187,43 @@ router.get('/pahalapoin', (req, res) => {
 
 //pahala dan dosa update
 router.post('/pahalapoin/update/:nipd', (req, res) => {
-
   const nipd = req.params.nipd;
-  const jumlah = parseInt(req.body.jumlah) || 1;
-  const aksi = req.body.aksi;
+  const kode_pelanggaran = req.body.id_pelanggaran;
 
-  let sql;
+  if (!kode_pelanggaran) {
+    return res.redirect('/dasis');
+  }
 
-  if (jumlah <= 0) {
-  return res.redirect('/dasis');
-}
+  // ambil poin dari tabel pelanggaran
+  const sqlGetPoin = "SELECT poin FROM pelanggaran WHERE kode_pelanggaran = ?";
 
-  if (aksi === "tambah") {
-    sql = `
+  database.query(sqlGetPoin, [kode_pelanggaran], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send("Error ambil poin");
+    }
+
+    if (result.length === 0) {
+      return res.redirect('/dasis');
+    }
+
+    const poin = result[0].poin;
+
+    const sqlUpdate = `
       UPDATE siswa 
       SET total_poin = total_poin + ? 
       WHERE nipd = ?
     `;
-  } else {
-    sql = `
-      UPDATE siswa 
-      SET total_poin = GREATEST(total_poin - ?, 0) 
-      WHERE nipd = ?
-    `;
-  }
 
-  database.query(sql, [jumlah, nipd], (err) => {
-    if (err) return res.status(500).send("Terjadi kesalahan server");
+    database.query(sqlUpdate, [poin, nipd], (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send("Error update poin");
+      }
 
-    res.redirect('/dasis');
+      res.redirect('/dasis');
+    });
   });
-
 });
 
 // simpan insertdata
