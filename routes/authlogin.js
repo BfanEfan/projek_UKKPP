@@ -3,17 +3,17 @@ const router = express.Router();
 const database = require('../config/db');
 const bcrypt = require("bcrypt");
 
-// LOGIN
+
+// ================= LOGIN =================
 router.get('/login', (req, res) => {
   res.render('index', { error: null });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const sql = 'SELECT * FROM admin WHERE username = ?';
 
-  database.query(sql, [username], async (err, results) => {
-    if (err) throw err;
+  database.query('SELECT * FROM admin WHERE username = ?', [username], async (err, results) => {
+    if (err) return res.status(500).send("Error server");
 
     if (results.length === 0) {
       return res.render('index', { error: 'Username tidak ditemukan' });
@@ -22,70 +22,81 @@ router.post('/login', async (req, res) => {
     const user = results[0];
 
     try {
-      let valid = false;
-
-      // cek apakah password sudah bcrypt atau belum
-      const isHashed = user.password && user.password.startsWith('$2');
-
-      if (isHashed) {
-        // 🔐 password sudah hash
-        valid = await bcrypt.compare(password, user.password);
-      } else {
-        // 🔓 password masih plain text
-        valid = password === user.password;
-
-        // 🔄 upgrade otomatis ke bcrypt
-        if (valid) {
-          const hashed = await bcrypt.hash(password, 10);
-
-          database.query(
-            'UPDATE admin SET password = ? WHERE id = ?',
-            [hashed, user.id]
-          );
-        }
-      }
+      const valid = await bcrypt.compare(password, user.password);
 
       if (!valid) {
         return res.render('index', { error: 'Password salah' });
       }
 
       req.session.user = {
-        id: user.id,
+        id: user.id_admin,
         username: user.username
       };
 
       res.redirect('/dashboard');
 
     } catch (error) {
-      console.log(error);
-      return res.status(500).send('Error server');
+      return res.status(500).send("Error server");
     }
   });
 });
 
-// LOGOUT
+// ================= REGISTER =================
+router.get('/register', (req, res) => {
+  // Menggunakan template 'register.ejs' (pastikan file sudah ada di folder views)
+  res.render('register', { error: null });
+});
+
+router.post('/register', (req, res) => {
+  const { username, password, role } = req.body;
+
+  const checkSql = "SELECT * FROM admin WHERE username = ?";
+
+  database.query(checkSql, [username], async (err, result) => {
+    if (err) return res.send("Error");
+
+    if (result.length > 0) {
+      return res.render('register', { error: 'Username sudah digunakan' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const insertSql = "INSERT INTO admin (username, password, role) VALUES (?, ?, ?)";
+
+    database.query(insertSql, [username, hash, role], (err) => {
+      if (err) return res.send("Gagal daftar");
+
+      res.redirect('/login');
+    });
+  });
+});
+
+// ================= LOGOUT =================
 router.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login'));
 });
 
-// DASHBOARD
+
+// ================= DASHBOARD =================
 router.get('/dashboard', (req, res) => {
-  database.query("SELECT COUNT(*) AS total FROM siswa", (err, result1) => {
+
+  database.query("SELECT COUNT(*) AS total FROM m_siswa", (err, result1) => {
     if (err) return res.status(500).send("Error server");
+
     const totalSiswa = result1[0].total;
 
-    // query ke-2
     database.query(
-      "SELECT COUNT(*) AS karma FROM siswa WHERE total_poin > 0",
+      "SELECT COUNT(*) AS karma FROM v_total_poin WHERE total_poin > 0",
       (err, result2) => {
         if (err) return res.status(500).send("Error server");
+
         const topel = result2[0].karma;
 
-        // query ke-3
         database.query(
-          "SELECT COUNT(*) AS rilis FROM siswa WHERE total_poin = 100",
+          "SELECT COUNT(*) AS rilis FROM v_total_poin WHERE total_poin >= 100",
           (err, result3) => {
             if (err) return res.status(500).send("Error server");
+
             const tori = result3[0].rilis;
 
             res.render('dashboard', { totalSiswa, topel, tori });
@@ -96,10 +107,12 @@ router.get('/dashboard', (req, res) => {
   });
 });
 
-// DAFTAR SISWA (satu route)
+
+// ================= DAFTAR SISWA =================
 router.get('/dasis', (req, res) => {
   const keyword = req.query.keyword || '';
-  let sql = "SELECT * FROM siswa";
+
+  let sql = "SELECT * FROM v_total_poin";
   let params = [];
 
   if (keyword.trim() !== '') {
@@ -107,199 +120,210 @@ router.get('/dasis', (req, res) => {
     params.push(`%${keyword}%`, `%${keyword}%`);
   }
 
-  // ambil siswa
   database.query(sql, params, (err, siswa) => {
     if (err) return res.status(500).send("Error server");
 
-    // ambil pelanggaran
-    database.query("SELECT * FROM pelanggaran", (err, pelanggaran) => {
-      if (err) return res.status(500).send("Error server");
+    res.render('dasis', {
+      siswa,
+      keyword
+    });
+  });
+});
 
-      console.log("DATA PELANGGARAN:", pelanggaran);
 
-      res.render('dasis', {
-        siswa: siswa,
-        pelanggaran: pelanggaran,
-        keyword: keyword
+// ================= DETAIL SISWA =================
+router.get('/siswa/:nipd', (req, res) => {
+  const nipd = req.params.nipd;
+
+  const sqlSiswa = `
+    SELECT s.*, j.jurusan AS nama_jurusan
+    FROM m_siswa s
+    JOIN m_jurusan j ON s.jurusan = j.jurusan
+    WHERE s.nipd = ?
+  `;
+
+  const sqlPelanggaran = `
+    SELECT p.deskripsi, p.poin, ps.tanggal
+    FROM pelanggaran_siswa ps
+    JOIN m_pelanggaran p ON ps.id_pelanggaran = p.id_pelanggaran
+    WHERE ps.nipd = ?
+    ORDER BY ps.tanggal ASC
+  `;
+
+  const sqlTotal = `
+    SELECT total_poin 
+    FROM v_total_poin 
+    WHERE nipd = ?
+  `;
+
+  const sqlMaster = `
+    SELECT id_pelanggaran, deskripsi, poin 
+    FROM m_pelanggaran
+  `;
+
+  // 1. siswa
+  database.query(sqlSiswa, [nipd], (err, siswaResult) => {
+    if (err) return res.send("Error siswa");
+    if (siswaResult.length === 0) return res.send("Siswa tidak ditemukan");
+
+    // 2. pelanggaran
+    database.query(sqlPelanggaran, [nipd], (err, pelResult) => {
+      if (err) return res.send("Error pelanggaran");
+
+      // 3. total poin
+      database.query(sqlTotal, [nipd], (err, totalResult) => {
+        if (err) return res.send("Error total");
+
+        const total = totalResult[0]?.total_poin || 0;
+
+        //master pelanggaran
+        database.query(sqlMaster, (err, masterResult) => {
+          if (err) return res.send("Error master pelanggaran");
+
+          //FINAL RENDER (SEMUA DATA ADA DI SINI)
+          res.render('detsis', {
+            siswa: siswaResult[0],
+            pelanggaran: pelResult,
+            total_poin: total,
+            masterPelanggaran: masterResult
+          });
+        });
       });
     });
   });
 });
 
 
-// DAFTAR PELANGGARAN (satu route)
+// ================= DAFTAR PELANGGARAN =================
 router.get('/detailpel', (req, res) => {
   const keyword = req.query.keyword || '';
-  let sql = "SELECT * FROM pelanggaran";
+
+  let sql = "SELECT * FROM m_pelanggaran";
   let params = [];
 
   if (keyword.trim() !== '') {
-    sql += " WHERE kode_pelanggaran LIKE ? OR jenis_pelanggaran LIKE ?";
+    sql += " WHERE kode_pelanggaran LIKE ? OR jenis LIKE ?";
     params.push(`%${keyword}%`, `%${keyword}%`);
   }
 
   database.query(sql, params, (err, results) => {
     if (err) return res.status(500).send("Error server");
-    res.render('detailpel', { pelanggaran: results, keyword });
+
+    res.render('detailpel', {
+      pelanggaran: results,
+      keyword
+    });
   });
 });
 
-// HAPUS SISWA
+
+// ================= HAPUS SISWA =================
 router.post('/dasis/delete/:nipd', (req, res) => {
   const nipd = req.params.nipd;
 
-  database.query("DELETE FROM siswa WHERE nipd = ?", [nipd], (err, result) => {
-    if (err) {
-      console.error("Error hapus siswa:", err);
-      return res.status(500).send("Terjadi kesalahan server");
-    }
+  database.query("DELETE FROM m_siswa WHERE nipd = ?", [nipd], (err) => {
+    if (err) return res.status(500).send("Error server");
+
     res.redirect('/dasis');
   });
 });
 
-// bagian pahalapoin
+
+// ================= FORM INPUT PELANGGARAN =================
 router.get('/pahalapoin', (req, res) => {
 
-  const sqlSiswa = "SELECT * FROM siswa";
-  const sqlPelanggaran = "SELECT * FROM pelanggaran";
+  const sqlSiswa = "SELECT * FROM m_siswa";
+  const sqlPelanggaran = "SELECT * FROM m_pelanggaran";
 
   database.query(sqlSiswa, (err, siswa) => {
-    if (err) {
-      console.log(err);
-      return res.send("Terjadi kesalahan");
-    }
+    if (err) return res.send("Error siswa");
 
     database.query(sqlPelanggaran, (err, pelanggaran) => {
-      if (err) {
-        console.log(err);
-        return res.send("Terjadi kesalahan");
-      }
+      if (err) return res.send("Error pelanggaran");
 
       res.render('pahalapoin', {
-        siswa: siswa,
-        pelanggaran: pelanggaran
+        siswa,
+        pelanggaran
       });
     });
-
   });
-
 });
 
-//pahala dan dosa update
+
+// ================= INSERT PELANGGARAN KE SISWA =================
 router.post('/pahalapoin/update/:nipd', (req, res) => {
   const nipd = req.params.nipd;
-  const kode_pelanggaran = req.body.id_pelanggaran;
+  const id_pelanggaran = req.body.id_pelanggaran;
+  const userId = req.session.user.id;
 
-  if (!kode_pelanggaran) {
-    return res.redirect('/dasis');
-  }
+  if (!id_pelanggaran) return res.redirect('/dasis');
 
-  // ambil poin dari tabel pelanggaran
-  const sqlGetPoin = "SELECT poin FROM pelanggaran WHERE kode_pelanggaran = ?";
+  const sql = `
+    INSERT INTO pelanggaran_siswa (nipd, id_pelanggaran, created_by, tanggal)
+    VALUES (?, ?, ?, CURDATE())
+  `;
 
-  database.query(sqlGetPoin, [kode_pelanggaran], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Error ambil poin");
-    }
+  database.query(sql, [nipd, id_pelanggaran, userId], (err) => {
+    if (err) return res.status(500).send("Error insert");
 
-    if (result.length === 0) {
-      return res.redirect('/dasis');
-    }
-
-    const poin = result[0].poin;
-
-    const sqlUpdate = `
-      UPDATE siswa 
-      SET total_poin = total_poin + ? 
-      WHERE nipd = ?
-    `;
-
-    database.query(sqlUpdate, [poin, nipd], (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).send("Error update poin");
-      }
-
-      res.redirect('/dasis');
-    });
+    res.redirect('/dasis');
   });
 });
 
-// simpan insertdata
+
+// ================= INSERT SISWA =================
 router.post('/insertdata', (req, res) => {
-    const { nipd, nama_siswa, kelas_siswa, jurusan, kode_pelanggaran } = req.body;
+  const { nipd, nama_siswa, kelas_siswa, jurusan } = req.body;
 
-    console.log('Data diterima:', req.body);
+  const sql = `
+    INSERT INTO m_siswa (nipd, nama_siswa, kelas, jurusan)
+    VALUES (?, ?, ?, ?)
+  `;
 
-    const total_poin = 0; // default
+  database.query(sql, [nipd, nama_siswa, kelas_siswa, jurusan], (err) => {
+    if (err) return res.send("Gagal: " + err.message);
 
-    const sql = `INSERT INTO siswa (nipd, nama_siswa, kelas_siswa, jurusan, kode_pelanggaran, total_poin) 
-    VALUES (?, ?, ?, ?, ?, ?)`;
-    
-    database.query(sql, [nipd, nama_siswa, kelas_siswa, jurusan, kode_pelanggaran, total_poin], (err, result) => {
-        if (err) {
-            console.log('Error INSERT:', err);
-            return res.send("Gagal menyimpan data: " + err.message);
-        }
-
-        console.log("Insert berhasil:", result);
-        res.redirect('/dasis'); // sementara jangan redirect dulu
-    });
+    res.redirect('/dasis');
+  });
 });
 
-//insert data jurusan dan pelanggaran
+
+// ================= FORM INSERT =================
 router.get('/insertdata', (req, res) => {
 
-    const sqlPelanggaran = "SELECT kode_pelanggaran FROM pelanggaran";
-    const sqlJurusan = "SELECT * FROM jurusan";
+  const sqlJurusan = "SELECT * FROM m_jurusan";
 
-    // ambil pelanggaran dulu
-    database.query(sqlPelanggaran, (err, pelanggaran) => {
-        if (err) {
-            console.log(err);
-            return res.send("Gagal mengambil data pelanggaran");
-        }
+  database.query(sqlJurusan, (err, jurusan) => {
+    if (err) return res.send("Error jurusan");
 
-        // lalu ambil jurusan
-        database.query(sqlJurusan, (err, jurusan) => {
-            if (err) {
-                console.log(err);
-                return res.send("Gagal mengambil data jurusan");
-            }
-
-            // kirim dua data ke EJS
-            res.render('insertdata', {
-                pelanggaran: pelanggaran,
-                jurusan: jurusan
-            });
-
-        });
-    });
-
+    res.render('insertdata', { jurusan });
+  });
 });
 
-// Route GET menampilkan form insertPel
+
+// ================= INSERT MASTER PELANGGARAN =================
 router.get('/insertPel', (req, res) => {
-    res.render('insertPel'); // insertPel.ejs di folder views
+  res.render('insertPel');
 });
 
-// Route POST menyimpan data form insertPel
 router.post('/insertPel', (req, res) => {
-    const { kode_pelanggaran, jenis_pelanggaran, deskripsi_pelanggaran, sanksi, poin } = req.body;
+  const { kode_pelanggaran, jenis, deskripsi, sanksi, poin } = req.body;
 
-    console.log('Data diterima:', req.body);
+  const sql = `
+    INSERT INTO m_pelanggaran 
+    (kode_pelanggaran, jenis, deskripsi, sanksi, poin)
+    VALUES (?, ?, ?, ?, ?)
+  `;
 
-    const sql = `INSERT INTO pelanggaran (kode_pelanggaran, jenis_pelanggaran, deskripsi_pelanggaran, sanksi, poin)
-                 VALUES (?, ?, ?, ?, ?)`;
-    
-    database.query(sql, [kode_pelanggaran, jenis_pelanggaran, deskripsi_pelanggaran, sanksi, poin], (err, result) => {
-        if (err) {
-            console.log('Error INSERT:', err);
-            return res.send('Gagal menyimpan data: ' + err.message);
-        }
-        res.redirect('/detailpel');
-    });
+  database.query(sql, [kode_pelanggaran, jenis, deskripsi, sanksi, poin], (err) => {
+    if (err) return res.send("Gagal: " + err.message);
+
+    res.redirect('/detailpel');
+  });
 });
+
+
+
 
 module.exports = router;
+

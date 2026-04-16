@@ -47,17 +47,6 @@
         </select>
     </div>
 
-    <div>
-        <label class="block font-semibold mb-1">Kode pelanggaran</label>
-        <select name="kode_pelanggaran">
-            <% pelanggaran.forEach(function(data){ %>
-                <option value="<%= data.kode_pelanggaran %>">
-                    <%= data.kode_pelanggaran %>
-                </option>
-            <% }) %>
-        </select>
-    </div>
-
     <div class="flex gap-2">
         <button type="submit"
             class="bg-blue-500 hover:bg-blue-600 text-white rounded-md w-[80px] h-[40px]">

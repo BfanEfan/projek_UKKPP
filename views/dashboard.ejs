@@ -1,141 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SMK BPM</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-200">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
-    body{
+    body {
       overflow: hidden;
     }
   </style>
- 
-<!-- HEADER -->
-<div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
-      <img src="/css/bpmlogo.jpeg" alt="icon" class="w-full h-full object-cover">
+</head>
+<body class="bg-gray-200 text-[#332c2d]">
+
+  <header class="bg-red-900 text-white flex justify-between items-center px-8 py-4 shadow-md relative z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+        <img src="/css/bpmlogo.jpeg" alt="Logo SMK BPM" class="w-full h-full object-cover">
+      </div>
+      <h1 class="font-bold text-lg uppercase">SMK BINA PUTRA MANDIRI</h1>
     </div>
-    <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
+
+    <button 
+      onclick="handleLogout()" 
+      class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white font-semibold transition-all active:scale-95"
+    >
+      Logout
+    </button>
+  </header>
+
+  <div class="flex">
+    <aside class="w-64 bg-gray-100 min-h-screen p-6 shadow-sm">
+      <ul class="space-y-4">
+        <li>
+          <a href="/dashboard" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+            <img src="/css/rumah.png" alt="icon dashboard" class="w-5 h-5">
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+            <img src="/css/edu.png" alt="icon data siswa" class="w-5 h-5">
+            Data Siswa
+          </a>
+        </li>
+        <li>
+          <a href="/detailpel" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
+            <img src="/css/detail.png" alt="icon pelanggaran" class="w-5 h-5">
+            Pelanggaran
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="flex-1 p-8">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold mb-1">Overview Sekolah</h2>
+        <p>Kelola kedisiplinan siswa dengan mudah</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 mb-8">
+        
+        <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+          <img src="/css/siswas.png" alt="icon siswa" class="w-12 h-12 object-contain">
+          <div>
+            <p class="text-gray-500 font-medium">Total Siswa</p>
+            <h3 class="text-3xl font-bold mt-1 tracking-tight text-slate-800"><%= totalSiswa %></h3>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+  <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
   </div>
- <!--log out-->
-  <button 
-  onclick="handleLogout()" 
-  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white transition-colors"
->
-  Logout
-</button>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function handleLogout() {
-  Swal.fire({
-    title: 'Konfirmasi Logout',
-    text: "Apakah benar Anda ingin keluar?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444', // Merah Tailwind
-    cancelButtonColor: '#374151', // Abu-abu gelap
-    confirmButtonText: 'Iya, Keluar',
-    cancelButtonText: 'Batal',
-    reverseButtons: true // Memposisikan tombol 'Iya' di kanan agar lebih user-friendly
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = '/logout';
+  <div>
+    <p class="text-gray-500 font-medium text-sm">Siswa yang Melanggar</p>
+    <h3 class="text-3xl font-bold mt-1 text-amber-600"><%= topel %></h3>
+  </div>
+</div>
+        <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+          <img src="/css/api.png" alt="icon fire" class="w-12 h-12 object-contain">
+          <div>
+            <p class="text-gray-500 font-medium">Siswa daftar Merah</p>
+            <h3 class="text-3xl font-bold mt-1 tracking-tight text-red-500"><%= tori %></h3>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-white p-8 rounded-xl shadow">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2">
+          Selamat Datang 👋
+        </h3>
+        <p class="text-gray-500 font-bold leading-relaxed">
+          Website ini digunakan untuk memantau dan mencatat poin pelanggaran siswa. <br>
+          <span class="font-normal">Silakan pilih menu di sebelah kiri untuk mulai mengelola data.</span>
+        </p>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function handleLogout() {
+      Swal.fire({
+        title: 'Konfirmasi Logout',
+        text: "Apakah benar Anda ingin keluar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b91c1c',
+        cancelButtonColor: '#374151',
+        confirmButtonText: 'Iya, Keluar',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/logout';
+        }
+      });
     }
-  });
-}
-</script>
-</div>
-</script>
-</div>
- 
-<div class="flex">
- 
-  <!-- SIDEBAR -->
-  <div class="w-64 bg-gray-100 min-h-screen p-6">
-
-    <ul class="space-y-4">
-      <li>
-        <a href="/dashboard"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/rumah.png" alt="icon" class="w-5 h-5">
-          Dashboard
-        </a>
-      </li>
-      <li>
-        <a href="/dasis"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/edu.png" alt="icon" class="w-5 h-5">
-          Data Siswa
-        </a>
-      </li>
-      <li>
-        <a href="/detailpel"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/detail.png" alt="icon" class="w-5 h-5">
-          Detail pelanggaran
-        </a>
-      </li>
-    </ul>
-  </div>
- 
-  <!-- CONTENT -->
-  <div class="flex-1 p-8">
- 
-    <h2 class="text-2xl font-bold mb-2 text-[#332c2d]">Overview Sekolah</h2>
-    <p class="mb-6 text-[#332c2d]">
-      Kelola kedisiplinan siswa dengan mudah
-    </p>
- 
-    <!-- CARD -->
-    <div class="grid grid-cols-3 gap-6 mb-8">
-      
-    <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
-        <img src="/css/siswas.png" alt="icon" class="w-12 h-12 object-contain">
-        <div>
-          <p class="text-gray-500">Jumlah siswa</p>
-          <h3 class="text-3xl font-bold mt-2"><%= totalSiswa %></h3>
-        </div>
-    </div>
-
-    
-    <div class="bg-black p-6 rounded-xl shadow flex items-center gap-4">
-        <img src="/css/warning_icon.png" alt="icon" class="w-12 h-12 object-contain">
-        <div>
-          <p class="text-gray-500">Jumlah pelanggar</p>
-          <h3 class="text-3xl font-bold mt-2 text-yellow-500"><%= topel %></h3>
-        </div>
-    </div>
-
- 
-    <div class="bg-white p-6 rounded-xl shadow flex items-center gap-4">
-        <img src="/css/api.png" alt="icon" class="w-12 h-12 object-contain">
-        <div>
-          <p class="text-black-500">Siswa daftar merah</p>
-          <h3 class="text-3xl font-bold mt-2 text-red-500"><%= tori %>
-          </h3>
-        </div>
-    </div>
-
- 
-    </div>
- 
-    <!-- WELCOME BOX -->
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-xl font-bold mb-2">
-        Selamat Datang 👋
-      </h3>
-      <p class="text-gray-500 font-bold">
-        Website ini digunakan untuk memantau dan mencatat poin pelanggaran siswa.
-        Silakan pilih menu di sebelah kiri untuk mulai mengelola data.
-      </p>
-    </div>
- 
-  </div>
- 
-</div>
- 
+  </script>
 </body>
 </html>

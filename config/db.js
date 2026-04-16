@@ -1,19 +1,24 @@
 const mysql = require('mysql2');
 
-// Buat koneksi ke database
-const database = mysql.createConnection({
+const database = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
-  database: "db_ukkpp",
-  port: 3306
+  database: "db_ukkpp_new",
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-// Cek koneksi
-database.connect((err) => {
-  if (err) throw err;
-  console.log("Database connected");
+// Test koneksi
+database.getConnection((err, connection) => {
+  if (err) {
+    console.error("Database connection failed:", err);
+  } else {
+    console.log("Database connected");
+    connection.release(); // penting!
+  }
 });
 
-// Export koneksi supaya bisa dipakai di file lain
 module.exports = database;

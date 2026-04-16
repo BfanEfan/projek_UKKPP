@@ -103,8 +103,8 @@ function handleLogout() {
 <% pelanggaran.forEach((p, index) => { %>
 <tr class="text-center hover:bg-blue-100">
   <td class="border px-4 py-2"><%= index + 1 %></td>
-  <td class="border px-4 py-2"><%= p.jenis_pelanggaran %></td>
-  <td class="border px-4 py-2 text-left"><%= p.deskripsi_pelanggaran %></td>
+  <td class="border px-4 py-2"><%= p.jenis %></td>
+  <td class="border px-4 py-2 text-left"><%= p.deskripsi %></td>
   <td class="border px-4 py-2"><%= p.sanksi %></td>
   <td class="border px-4 py-2 text-green-600"><%= p.poin %></td>
   <td class="border px-4 py-2 text-red-700"><%= p.kode_pelanggaran %></td>
