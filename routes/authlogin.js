@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const database = require('../config/db');
 const bcrypt = require("bcrypt");
+const { data } = require('autoprefixer');
+
+function isLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  next();
+}
 
 
 // ================= LOGIN =================
@@ -29,8 +37,9 @@ router.post('/login', (req, res) => {
       }
 
       req.session.user = {
-        id: user.id_admin,
-        username: user.username
+        id_admin: user.id_admin,
+        username: user.username,
+        role: user.role
       };
 
       res.redirect('/dashboard');
@@ -251,22 +260,46 @@ router.get('/pahalapoin', (req, res) => {
 
 
 // ================= INSERT PELANGGARAN KE SISWA =================
-router.post('/pahalapoin/update/:nipd', (req, res) => {
+router.post('/pahalapoin/update/:nipd', isLogin, (req, res) => {
   const nipd = req.params.nipd;
   const id_pelanggaran = req.body.id_pelanggaran;
-  const userId = req.session.user.id;
+  const userId = req.session.user.id_admin;
 
   if (!id_pelanggaran) return res.redirect('/dasis');
 
-  const sql = `
-    INSERT INTO pelanggaran_siswa (nipd, id_pelanggaran, created_by, tanggal)
-    VALUES (?, ?, ?, CURDATE())
+  // 🔥 CEK TOTAL POIN DULU
+  const cekPoin = `
+    SELECT total_poin 
+    FROM v_total_poin 
+    WHERE nipd = ?
   `;
 
-  database.query(sql, [nipd, id_pelanggaran, userId], (err) => {
-    if (err) return res.status(500).send("Error insert");
+  database.query(cekPoin, [nipd], (err, result) => {
+    if (err) return res.send("Error cek poin");
 
-    res.redirect('/dasis');
+    const total = result[0]?.total_poin || 0;
+
+    // ❌ JIKA SUDAH 100 ATAU LEBIH → TOLAK
+    if (total >= 100) {
+      return res.send(`
+        <script>
+          alert('Poin siswa sudah mencapai 100! Tidak bisa ditambah lagi.');
+          window.location.href = '/dasis';
+        </script>
+      `);
+    }
+
+    // ✅ LANJUT INSERT
+    const sql = `
+      INSERT INTO pelanggaran_siswa (nipd, id_pelanggaran, created_by, tanggal)
+      VALUES (?, ?, ?, CURDATE())
+    `;
+
+    database.query(sql, [nipd, id_pelanggaran, userId], (err) => {
+      if (err) return res.status(500).send("Error insert");
+
+      res.redirect('/dasis');
+    });
   });
 });
 
@@ -322,6 +355,16 @@ router.post('/insertPel', (req, res) => {
   });
 });
 
+// ================= rekap =================
+router.get('/rekap', (req, res) => {
+  const query = `SELECT * FROM v_detail_pelanggaran ORDER BY tanggal ASC`;
+
+  database.query(query, (err, results) => {
+    if (err) throw err;
+
+    res.render('rekap', { data: results });
+  });
+});
 
 
 

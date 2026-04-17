@@ -47,44 +47,82 @@
 </style></head>
 
 <body class="bg-gray-100">
+<!-- HEADER -->
+  <header class="bg-red-900 text-white flex justify-between items-center px-8 py-4 shadow relative">
 
-<div class="bg-red-900 text-white flex justify-between items-center px-8 py-4 no-print">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
-      <img src="/css/bpmlogo.jpeg" alt="icon" class="w-full h-full object-cover">
+    <!-- LOGO -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+        <img src="/css/bpmlogo.jpeg" class="w-full h-full object-cover">
+      </div>
+      <h1 class="font-bold text-lg uppercase">SMK BINA PUTRA MANDIRI</h1>
     </div>
-    <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
-  </div>
 
-  <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded">
-    Logout
+    <!-- KANAN -->
+    <div class="flex items-center gap-4">
+
+      <!-- PROFIL -->
+      <div class="relative">
+  <button onclick="toggleDropdown()" class="flex items-center gap-3 focus:outline-none">
+    
+    <div class="w-10 h-10 rounded-full border-2 border-white bg-blue-600 flex items-center justify-center text-white font-bold uppercase shadow-sm">
+      <%= (locals.user && locals.user.role === 'bk') ? 'B' : 'A' %>
+    </div>
+
+    <span class="font-semibold">
+      <%= (locals.user && locals.user.role === 'bk') ? 'bk' : 'Admin' %>
+    </span>
+    
   </button>
-</div>
+
+        <!-- DROPDOWN -->
+        <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden">
+          <a href="#" class="block px-4 py-2 hover:bg-gray-200">Profil Saya</a>
+          <button onclick="handleLogout()" class="w-full text-left px-4 py-2 hover:bg-gray-200">
+            Logout
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
 
 <div class="flex">
 
-  <div class="w-64 bg-gray-100 min-h-screen p-6 no-print">
-    <ul class="space-y-4">
-      <li>
-        <a href="/dashboard" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/rumah.png" class="w-5 h-5">
-          Dashboard
-        </a>
-      </li>
-      <li>
-        <a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/edu.png" class="w-5 h-5">
-          Data Siswa
-        </a>
-      </li>
-      <li>
-        <a href="/detailpel" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/detail.png" class="w-5 h-5">
-          Detail pelanggaran
-        </a>
-      </li>
-    </ul>
-  </div>
+  <!-- SIDEBAR -->
+    <aside class="w-64 bg-gray-100 min-h-screen p-6 shadow-sm">
+      <ul class="space-y-4">
+
+        <li>
+          <a href="/dashboard" class="flex items-center gap-2 bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/rumah.png" class="w-5 h-5">
+            Dashboard
+          </a>
+        </li>
+
+        <li>
+          <a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/edu.png" class="w-5 h-5">
+            Data Siswa
+          </a>
+        </li>
+
+        <li>
+          <a href="/detailpel" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/detail.png" class="w-5 h-5">
+            Tata Tertib sekolah
+          </a>
+        </li>
+
+        <li>
+          <a href="/rekap" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/rekapp.png" class="w-5 h-5">
+           Rekap pelanggaran siswa
+          </a>
+        </li>
+
+      </ul>
+    </aside>
 
   <main class="flex-1 p-6">
 
@@ -132,24 +170,31 @@
             </tr>
           <% } %>
 
-          <% siswa.forEach(s => { %>
-          <tr class="<%= s.total_poin >= 100 ? 'bg-red-50 text-red-600 font-bold' : '' %>">
-            <td class="p-3 border"><%= s.nipd %></td>
-            <td class="p-3 border"><%= s.nama_siswa %></td>
-            <td class="p-3 border text-center"><%= s.kelas %></td>
-            <td class="p-3 border"><%= s.nama_jurusan %></td>
-            <td class="p-3 border text-center"><%= s.total_poin %></td>
+                  <% siswa.forEach(s => { %>
+        <tr class="<%= s.total_poin >= 100 ? 'bg-red-50 text-red-600 font-bold' : '' %>">
+          <td class="p-3 border"><%= s.nipd %></td>
+          <td class="p-3 border"><%= s.nama_siswa %></td>
+          <td class="p-3 border text-center"><%= s.kelas %></td>
+          <td class="p-3 border"><%= s.nama_jurusan %></td>
+          <td class="p-3 border text-center">
+            <%= s.total_poin %> 
+            <% if (s.total_poin >= 100) { %> <span class="text-[10px] block text-red-500 uppercase"></span> <% } %>
+          </td>
 
-            <td class="p-3 border no-print">
-              <div class="flex gap-2 justify-center">
-                <a href="/siswa/<%= s.nipd %>" class="bg-blue-500 text-white px-3 py-1 rounded text-xs">Detail</a>
-                <form action="/dasis/delete/<%= s.nipd %>" method="POST" onsubmit="return confirm('Yakin hapus data?')">
-                  <button class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
-                </form>
-              </div>
-            </td>
-          </tr>
-          <% }) %>
+  <td class="p-3 border no-print">
+    <div class="flex gap-2 justify-center">
+      <a href="/siswa/<%= s.nipd %>" 
+         class="<%= s.total_poin >= 100 ? 'bg-orange-500' : 'bg-blue-500' %> text-white px-3 py-1 rounded text-xs">
+         <%= s.total_poin >= 100 ? 'Lihat Laporan' : 'Detail' %>
+      </a>
+
+      <form action="/dasis/delete/<%= s.nipd %>" method="POST" onsubmit="return confirm('Yakin hapus data?')">
+        <button class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
+      </form>
+    </div>
+  </td>
+</tr>
+<% }) %>
         </tbody>
       </table>
 

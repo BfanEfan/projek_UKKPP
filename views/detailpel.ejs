@@ -9,71 +9,81 @@
 <body class="bg-gray-100 min-h-screen">
 
 <!-- HEADER -->
-<div class="bg-red-900 text-white flex justify-between items-center px-8 py-4">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
-      <img src="/css/bpmlogo.jpeg" class="w-full h-full object-cover">
+  <header class="bg-red-900 text-white flex justify-between items-center px-8 py-4 shadow relative">
+
+    <!-- LOGO -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+        <img src="/css/bpmlogo.jpeg" class="w-full h-full object-cover">
+      </div>
+      <h1 class="font-bold text-lg uppercase">SMK BINA PUTRA MANDIRI</h1>
     </div>
-    <h1 class="font-bold text-lg">SMK BINA PUTRA MANDIRI</h1>
-  </div>
-  <!--log out-->
-  <button 
-  onclick="handleLogout()" 
-  class="bg-red-500 px-6 py-2 rounded-full hover:bg-red-600 text-white transition-colors"
->
-  Logout
-</button>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function handleLogout() {
-  Swal.fire({
-    title: 'Konfirmasi Logout',
-    text: "Apakah benar Anda ingin keluar?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444', // Merah Tailwind
-    cancelButtonColor: '#374151', // Abu-abu gelap
-    confirmButtonText: 'Iya, Keluar',
-    cancelButtonText: 'Batal',
-    reverseButtons: true // Memposisikan tombol 'Iya' di kanan agar lebih user-friendly
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = '/logout';
-    }
-  });
-}
-</script>
-</div>
+
+    <!-- KANAN -->
+    <div class="flex items-center gap-4">
+
+      <!-- PROFIL -->
+      <div class="relative">
+  <button onclick="toggleDropdown()" class="flex items-center gap-3 focus:outline-none">
+    
+    <div class="w-10 h-10 rounded-full border-2 border-white bg-blue-600 flex items-center justify-center text-white font-bold uppercase shadow-sm">
+      <%= (locals.user && locals.user.role === 'bk') ? 'B' : 'A' %>
+    </div>
+
+    <span class="font-semibold">
+      <%= (locals.user && locals.user.role === 'bk') ? 'bk' : 'Admin' %>
+    </span>
+    
+  </button>
+
+        <!-- DROPDOWN -->
+        <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden">
+          <a href="#" class="block px-4 py-2 hover:bg-gray-200">Profil Saya</a>
+          <button onclick="handleLogout()" class="w-full text-left px-4 py-2 hover:bg-gray-200">
+            Logout
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
 
 <div class="flex">
 
  <!-- SIDEBAR -->
-  <div class="w-64 bg-gray-100 min-h-screen p-6">
+    <aside class="w-64 bg-gray-100 min-h-screen p-6 shadow-sm">
+      <ul class="space-y-4">
 
-    <ul class="space-y-4">
-      <li>
-        <a href="/dashboard"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/rumah.png" alt="icon" class="w-5 h-5">
-          Dashboard
-        </a>
-      </li>
-      <li>
-        <a href="/dasis"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/edu.png" alt="icon" class="w-5 h-5">
-          Data Siswa
-        </a>
-      </li>
-      <li>
-        <a href="/detailpel"
-          class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold text-[#332c2d]">
-          <img src="/css/detail.png" alt="icon" class="w-5 h-5">
-          Detail pelanggaran
-        </a>
-      </li>
-    </ul>
-  </div>
+        <li>
+          <a href="/dashboard" class="flex items-center gap-2 bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/rumah.png" class="w-5 h-5">
+            Dashboard
+          </a>
+        </li>
+
+        <li>
+          <a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/edu.png" class="w-5 h-5">
+            Data Siswa
+          </a>
+        </li>
+
+        <li>
+          <a href="/detailpel" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/detail.png" class="w-5 h-5">
+            Tata Tertib sekolah
+          </a>
+        </li>
+
+        <li>
+          <a href="/rekap" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/rekapp.png" class="w-5 h-5">
+            Rekap pelanggaran siswa
+          </a>
+        </li>
+
+      </ul>
+    </aside>
 
 <main class="flex-1 flex justify-center p-6">
 <div class="w-full max-w-5xl">
