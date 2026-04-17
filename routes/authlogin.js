@@ -263,16 +263,16 @@ router.get('/pahalapoin', (req, res) => {
 router.post('/pahalapoin/update/:nipd', isLogin, (req, res) => {
   const nipd = req.params.nipd;
   const id_pelanggaran = req.body.id_pelanggaran;
+  const tanggalManual = req.body.tanggal; // <--- Ambil tanggal dari form
   const userId = req.session.user.id_admin;
 
-  if (!id_pelanggaran) return res.redirect('/dasis');
+  // Pastikan data tidak kosong
+  if (!id_pelanggaran || !tanggalManual) {
+    return res.send("<script>alert('Pilih pelanggaran dan tanggal!'); window.history.back();</script>");
+  }
 
-  // 🔥 CEK TOTAL POIN DULU
-  const cekPoin = `
-    SELECT total_poin 
-    FROM v_total_poin 
-    WHERE nipd = ?
-  `;
+  // 🔥 1. CEK TOTAL POIN DULU
+  const cekPoin = "SELECT total_poin FROM v_total_poin WHERE nipd = ?";
 
   database.query(cekPoin, [nipd], (err, result) => {
     if (err) return res.send("Error cek poin");
@@ -284,25 +284,29 @@ router.post('/pahalapoin/update/:nipd', isLogin, (req, res) => {
       return res.send(`
         <script>
           alert('Poin siswa sudah mencapai 100! Tidak bisa ditambah lagi.');
-          window.location.href = '/dasis';
+          window.location.href = '/siswa/${nipd}';
         </script>
       `);
     }
 
-    // ✅ LANJUT INSERT
+    // ✅ 2. LANJUT INSERT (Ganti CURDATE() menjadi ?)
     const sql = `
       INSERT INTO pelanggaran_siswa (nipd, id_pelanggaran, created_by, tanggal)
-      VALUES (?, ?, ?, CURDATE())
+      VALUES (?, ?, ?, ?)
     `;
 
-    database.query(sql, [nipd, id_pelanggaran, userId], (err) => {
-      if (err) return res.status(500).send("Error insert");
+    // Kirim 4 parameter: nipd, id_pelanggaran, userId, tanggalManual
+    database.query(sql, [nipd, id_pelanggaran, userId, tanggalManual], (err) => {
+      if (err) {
+        console.error("Gagal Simpan:", err);
+        return res.status(500).send("Gagal simpan: " + err.message);
+      }
 
-      res.redirect('/dasis');
+      // Berhasil! Balik ke halaman detail siswa
+      res.redirect('/siswa/' + nipd);
     });
   });
 });
-
 
 // ================= INSERT SISWA =================
 router.post('/insertdata', (req, res) => {
@@ -366,7 +370,20 @@ router.get('/rekap', (req, res) => {
   });
 });
 
+// ================= user =================
+router.get('/datse', (req, res) => {
 
+  const sql = "SELECT * FROM admin";
+
+  database.query(sql, (err, results) => {
+    if (err) return res.send("Error ambil user");
+
+    res.render('datse', {
+      users: results   
+    });
+  });
+
+});
 
 module.exports = router;
 

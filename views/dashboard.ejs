@@ -8,56 +8,33 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <style>
-    body { overflow: hidden; }
+    <style>
+    @media print {
+      body * { visibility: hidden; }
+      .print-area, .print-area * { visibility: visible; }
+      .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 
-<body class="bg-gray-200 text-[#332c2d]">
+<body class="bg-gray-100">
 
-  <!-- HEADER -->
-  <header class="bg-red-900 text-white flex justify-between items-center px-8 py-4 shadow relative">
-
-    <!-- LOGO -->
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
-        <img src="/css/bpmlogo.jpeg" class="w-full h-full object-cover">
-      </div>
-      <h1 class="font-bold text-lg uppercase">SMK BINA PUTRA MANDIRI</h1>
+<header class="bg-red-900 text-white flex justify-between items-center px-8 py-4 shadow no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+      <img src="/css/bpmlogo.jpeg" class="w-full h-full object-cover" alt="Logo">
     </div>
-
-    <!-- KANAN -->
-    <div class="flex items-center gap-4">
-
-      <!-- PROFIL -->
-      <div class="relative">
-  <button onclick="toggleDropdown()" class="flex items-center gap-3 focus:outline-none">
-    
-    <div class="w-10 h-10 rounded-full border-2 border-white bg-blue-600 flex items-center justify-center text-white font-bold uppercase shadow-sm">
-      <%= (locals.user && locals.user.role === 'bk') ? 'B' : 'A' %>
-    </div>
-
-    <span class="font-semibold">
-      <%= (locals.user && locals.user.role === 'bk') ? 'bk' : 'Admin' %>
-    </span>
-    
-  </button>
-
-        <!-- DROPDOWN -->
-        <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden">
-          <a href="#" class="block px-4 py-2 hover:bg-gray-200">Profil Saya</a>
-          <button onclick="handleLogout()" class="w-full text-left px-4 py-2 hover:bg-gray-200">
-            Logout
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </header>
+    <h1 class="font-bold text-lg uppercase">SMK BINA PUTRA MANDIRI</h1>
+  </div>
+  <div class="flex items-center gap-4">
+    <button onclick="handleLogout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition">Logout</button>
+  </div>
+</header>
 
   <div class="flex">
 
-    <!-- SIDEBAR -->
+      <!-- SIDEBAR -->
     <aside class="w-64 bg-gray-100 min-h-screen p-6 shadow-sm">
       <ul class="space-y-4">
 
@@ -72,6 +49,13 @@
           <a href="/dasis" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
             <img src="/css/edu.png" class="w-5 h-5">
             Data Siswa
+          </a>
+        </li>
+
+        <li>
+          <a href="/datse" class="flex items-center gap-2 hover:bg-gray-300 p-2 rounded font-bold">
+            <img src="/css/user.png" class="w-5 h-5">
+            Data User
           </a>
         </li>
 

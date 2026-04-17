@@ -9,23 +9,28 @@
   <style>
     @media print {
       .no-print { display: none !important; }
-      body { background: white !important; }
+      body { background: white !important; margin: 0 !important; padding: 0 !important; }
+      
+      /* Memaksa kontainer menggunakan lebar penuh kertas A4 */
       .container-box { 
         box-shadow: none !important; 
         border: none !important; 
         margin: 0 !important;
+        padding: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
+        min-width: 100% !important;
       }
+
+      table { width: 100% !important; border-collapse: collapse !important; }
+      th, td { border: 1px solid black !important; padding: 8px !important; }
+      
+      .data-siswa-box { border: none !important; background: transparent !important; padding: 0 !important; }
     }
 
     table, th, td {
       border: 1px solid #d1d5db;
       border-collapse: collapse;
-    }
-
-    @media print {
-      table, th, td { border: 1px solid black; }
     }
   </style>
 </head>
@@ -42,70 +47,68 @@
     </div>
   </div>
 
-  <div class="flex-grow flex justify-center p-4 sm:p-8">
-    <div class="container-box w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg self-start">
+  <div class="flex-grow flex justify-center p-4 sm:p-8 print:p-0">
+    <div class="container-box w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg self-start print:max-w-none print:shadow-none">
       
       <div class="text-center border-b-2 border-black pb-4 mb-6">
         <h2 class="text-2xl font-bold uppercase">Laporan Riwayat Pelanggaran Siswa</h2>
         <p class="text-gray-600">SMK Bina Putra Mandiri</p>
       </div>
 
-      <!-- DATA SISWA -->
-      <div class="grid grid-cols-2 gap-y-2 mb-8 bg-gray-50 p-4 rounded-md border border-gray-200">
-        <p><b>NIPD</b> <span class="ml-12">: <%= siswa.nipd %></span></p>
-        <p><b>Kelas</b> <span class="ml-11">: <%= siswa.kelas %></span></p>
-        <p><b>Nama</b> <span class="ml-[45px]">: <%= siswa.nama_siswa %></span></p>
-        <p><b>Jurusan</b> <span class="ml-7">: <%= siswa.nama_jurusan %></span></p>
+      <div class="data-siswa-box mb-8 bg-gray-50 p-4 rounded-md border border-gray-200">
+        <table class="w-full !border-none">
+          <tr class="!border-none">
+            <td class="!border-none p-1 w-20"><b>NIPD</b></td>
+            <td class="!border-none p-1">: <%= siswa.nipd %></td>
+            <td class="!border-none p-1 w-20"><b>Kelas</b></td>
+            <td class="!border-none p-1">: <%= siswa.kelas %></td>
+          </tr>
+          <tr class="!border-none">
+            <td class="!border-none p-1"><b>Nama</b></td>
+            <td class="!border-none p-1">: <%= siswa.nama_siswa %></td>
+            <td class="!border-none p-1"><b>Jurusan</b></td>
+            <td class="!border-none p-1">: <%= siswa.nama_jurusan %></td>
+          </tr>
+        </table>
       </div>
 
-      <!-- SUMMARY -->
-      <div class="flex gap-10 mb-6 px-2">
-        <p>Total Pelanggaran: <b><%= pelanggaran.length %></b></p>
+      <div class="flex gap-10 mb-6 px-2 font-semibold">
+        <p>Total Pelanggaran: <%= pelanggaran.length %></p>
         <p>Total Poin Akhir: 
-          <span class="font-bold <%= total_poin >= 100 ? 'text-red-600' : 'text-black-600' %>">
+          <span class="<%= total_poin >= 100 ? 'text-red-600' : 'text-black' %>">
             <%= total_poin %>
           </span>
         </p>
       </div>
 
-      <!-- TAMBAH PELANGGARAN -->
       <div class="mb-6 p-4 border rounded bg-gray-50 no-print">
         <h3 class="font-bold mb-3 text-gray-700">Tambah Pelanggaran</h3>
-
         <form action="/pahalapoin/update/<%= siswa.nipd %>" method="POST" class="flex flex-col sm:flex-row gap-3">
+          
+          <input type="date" name="tanggal" 
+            class="border px-3 py-2 rounded w-full sm:w-1/3" 
+            value="<%= new Date().toISOString().split('T')[0] %>" required>
 
           <select name="id_pelanggaran" id="selectPelanggaran"
             class="border px-3 py-2 rounded w-full sm:w-1/2" required>
-            
             <option value="">-- Pilih Pelanggaran --</option>
-            
             <% masterPelanggaran.forEach(p => { %>
-              <option 
-                value="<%= p.id_pelanggaran %>" 
-                data-deskripsi="<%= p.deskripsi %>"
-                data-poin="<%= p.poin %>">
+              <option value="<%= p.id_pelanggaran %>" data-deskripsi="<%= p.deskripsi %>" data-poin="<%= p.poin %>">
                 <%= p.deskripsi %> (+<%= p.poin %>)
               </option>
             <% }) %>
-
           </select>
 
-          <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
-            Tambah
-          </button>
-
+          <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Tambah</button>
         </form>
 
-        <!-- INFO PELANGGARAN -->
         <div id="infoPelanggaran" class="mt-3 text-sm text-gray-700 hidden">
-          <p><b>Deskripsi:</b> <span id="desc"></span></p>
-          <p><b>Poin:</b> <span id="poin"></span></p>
+          <p><b>Deskripsi:</b> <span id="desc"></span> | <b>Poin:</b> <span id="poin"></span></p>
         </div>
       </div>
 
-      <!-- TABLE -->
-      <table class="w-full text-left">
-        <thead class="bg-gray-100">
+      <table class="w-full text-left mt-4">
+        <thead class="bg-gray-100 print:bg-gray-200">
           <tr>
             <th class="p-3 text-center w-12">No</th>
             <th class="p-3">Deskripsi Pelanggaran</th>
@@ -115,68 +118,64 @@
         </thead>
         <tbody>
           <% if (pelanggaran.length === 0) { %>
-            <tr>
-              <td colspan="4" class="text-center p-10 text-gray-400 italic">
-                Data pelanggaran tidak ditemukan.
-              </td>
-            </tr>
+            <tr><td colspan="4" class="text-center p-10 text-gray-400 italic">Data tidak ditemukan.</td></tr>
           <% } %>
-
           <% pelanggaran.forEach((p, i) => { %>
             <tr class="hover:bg-gray-50">
-              <td class="p-3 text-center"><%= i + 1 %></td>
-              <td class="p-3"><%= p.deskripsi %></td>
-              <td class="p-3 text-center font-semibold"><%= p.poin %></td>
-              <td class="p-3 text-center">
+            <td class="p-3 text-center"><%= i + 1 %></td>
+            <td class="p-3"><%= p.deskripsi %></td>
+            <td class="p-3 text-center font-semibold"><%= p.poin %></td>
+            <td class="p-3 text-center">
+              <% if (p.tanggal) { %>
                 <%= new Date(p.tanggal).toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
+                  day: 'numeric', 
+                  month: 'long', 
+                  year: 'numeric' 
                 }) %>
-              </td>
-            </tr>
+              <% } else { %>
+                -
+              <% } %>
+            </td>
+          </tr>
           <% }) %>
         </tbody>
       </table>
 
-      <!-- TTD PRINT -->
-      <div class="mt-12 flex justify-between items-start hidden print:flex">
+      <div class="mt-12 hidden print:grid grid-cols-2 text-sm">
         <div class="text-center">
           <p>Orang Tua/Wali,</p>
           <div class="mt-20 border-b border-black w-40 mx-auto"></div>
         </div>
         <div class="text-center">
-          <p>Dicetak pada: <%= new Date().toLocaleDateString('id-ID') %></p>
-          <p class="mt-4">Guru BK,</p>
-          <div class="mt-16 border-b border-black w-40 mx-auto"></div>
-          <p class="mt-1 font-bold">( ............................ )</p>
+          <p>Bogor, <%= new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+          <p>Guru BK,</p>
+          <div class="mt-20 border-b border-black w-40 mx-auto"></div>
+          <p class="font-bold">( ............................ )</p>
         </div>
       </div>
 
     </div>
   </div>
 
+  <script>
+    const select = document.getElementById('selectPelanggaran');
+    const info = document.getElementById('infoPelanggaran');
+    const desc = document.getElementById('desc');
+    const poin = document.getElementById('poin');
+
+    select.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      const d = selected.getAttribute('data-deskripsi');
+      const p = selected.getAttribute('data-poin');
+
+      if (d && p) {
+        info.classList.remove('hidden');
+        desc.textContent = d;
+        poin.textContent = p;
+      } else {
+        info.classList.add('hidden');
+      }
+    });
+  </script>
 </body>
-<script>
-const select = document.getElementById('selectPelanggaran');
-const info = document.getElementById('infoPelanggaran');
-const desc = document.getElementById('desc');
-const poin = document.getElementById('poin');
-
-select.addEventListener('change', function() {
-  const selected = this.options[this.selectedIndex];
-
-  const d = selected.getAttribute('data-deskripsi');
-  const p = selected.getAttribute('data-poin');
-
-  if (d && p) {
-    info.classList.remove('hidden');
-    desc.textContent = d;
-    poin.textContent = p;
-  } else {
-    info.classList.add('hidden');
-  }
-});
-</script>
 </html>
